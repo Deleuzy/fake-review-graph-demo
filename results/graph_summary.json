@@ -1,0 +1,41 @@
+{
+  "n_reviews": 45954,
+  "positive_rate": 0.14529747138442792,
+  "entity_counts": {
+    "Review": 45954,
+    "Reviewer": 29431,
+    "Business": 209,
+    "StarGroup": 803,
+    "TimeWindow": 1835
+  },
+  "derivation_checks": {
+    "rur_is_union_of_cliques": true,
+    "rsr_is_union_of_cliques": true,
+    "rtr_is_union_of_cliques": false,
+    "rtr_within_one_business": true,
+    "rsr_within_one_business": true
+  },
+  "edges": {
+    "net_rur": 49315,
+    "net_rtr": 573616,
+    "net_rsr": 3402743
+  },
+  "reviewer_label_mixed_share": 0.0030240222894227175,
+  "split_leakage_seed0": {
+    "reviewer": {
+      "rur_edges_train_test": 0,
+      "test_share": 0.20000435217826523,
+      "test_positive_rate": 0.14274834076814275
+    },
+    "business": {
+      "rur_edges_train_test": 12053,
+      "test_share": 0.2056839448143796,
+      "test_positive_rate": 0.13975878121032587
+    },
+    "random": {
+      "rur_edges_train_test": 11902,
+      "test_share": 0.20000435217826523,
+      "test_positive_rate": 0.1531933413121532
+    }
+  }
+}

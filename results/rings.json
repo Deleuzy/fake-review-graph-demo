@@ -1,0 +1,976 @@
+{
+  "context": {
+    "fake_rate_one_review_accounts": 0.2468019707996203,
+    "fake_rate_multi_review_accounts": 0.05106793672107759,
+    "share_reviews_from_one_review_accounts": 0.48141619880750314
+  },
+  "runs": [
+    {
+      "graph": "Reviewer x business",
+      "k": 10,
+      "base_fake_rate": 0.14529747138442792,
+      "n_blocks": 10,
+      "n_mostly_fake": 0,
+      "blocks": [
+        {
+          "rank": 1,
+          "density": 1.5343,
+          "n_reviewers": 193,
+          "n_targets": 78,
+          "n_reviews_in_block": 2599,
+          "fake_share": 0.0,
+          "mostly_fake": false,
+          "evidence": {
+            "sample_reviewer_ids": [
+              1963,
+              2023,
+              2639,
+              5044,
+              5060,
+              5062,
+              5078,
+              5083,
+              5085,
+              5091
+            ],
+            "top_shared_businesses": [
+              {
+                "business_id": 131,
+                "reviews_in_block": 64
+              },
+              {
+                "business_id": 93,
+                "reviews_in_block": 61
+              },
+              {
+                "business_id": 56,
+                "reviews_in_block": 56
+              },
+              {
+                "business_id": 39,
+                "reviews_in_block": 54
+              },
+              {
+                "business_id": 107,
+                "reviews_in_block": 53
+              }
+            ],
+            "median_reviews_per_member_account": 12.0,
+            "share_one_review_accounts": 0.0,
+            "same_month_pair_share": 0.052045000525707076,
+            "same_star_pair_share": 0.34761854694564187
+          }
+        },
+        {
+          "rank": 2,
+          "density": 1.0086,
+          "n_reviewers": 343,
+          "n_targets": 94,
+          "n_reviews_in_block": 2729,
+          "fake_share": 0.01245877610846464,
+          "mostly_fake": false,
+          "evidence": {
+            "sample_reviewer_ids": [
+              63,
+              64,
+              86,
+              168,
+              198,
+              222,
+              249,
+              296,
+              394,
+              715
+            ],
+            "top_shared_businesses": [
+              {
+                "business_id": 96,
+                "reviews_in_block": 67
+              },
+              {
+                "business_id": 53,
+                "reviews_in_block": 62
+              },
+              {
+                "business_id": 51,
+                "reviews_in_block": 56
+              },
+              {
+                "business_id": 93,
+                "reviews_in_block": 54
+              },
+              {
+                "business_id": 22,
+                "reviews_in_block": 52
+              }
+            ],
+            "median_reviews_per_member_account": 8.0,
+            "share_one_review_accounts": 0.0,
+            "same_month_pair_share": 0.051510917394840566,
+            "same_star_pair_share": 0.33006610915309376
+          }
+        },
+        {
+          "rank": 3,
+          "density": 0.737,
+          "n_reviewers": 652,
+          "n_targets": 128,
+          "n_reviews_in_block": 3511,
+          "fake_share": 0.013101680432925093,
+          "mostly_fake": false,
+          "evidence": {
+            "sample_reviewer_ids": [
+              57,
+              59,
+              63,
+              64,
+              81,
+              129,
+              153,
+              159,
+              168,
+              171
+            ],
+            "top_shared_businesses": [
+              {
+                "business_id": 96,
+                "reviews_in_block": 86
+              },
+              {
+                "business_id": 54,
+                "reviews_in_block": 77
+              },
+              {
+                "business_id": 58,
+                "reviews_in_block": 68
+              },
+              {
+                "business_id": 53,
+                "reviews_in_block": 61
+              },
+              {
+                "business_id": 51,
+                "reviews_in_block": 61
+              }
+            ],
+            "median_reviews_per_member_account": 5.0,
+            "share_one_review_accounts": 0.0,
+            "same_month_pair_share": 0.04987341772151899,
+            "same_star_pair_share": 0.3280450070323488
+          }
+        },
+        {
+          "rank": 4,
+          "density": 0.5542,
+          "n_reviewers": 659,
+          "n_targets": 111,
+          "n_reviews_in_block": 2650,
+          "fake_share": 0.029811320754716982,
+          "mostly_fake": false,
+          "evidence": {
+            "sample_reviewer_ids": [
+              133,
+              140,
+              166,
+              168,
+              169,
+              183,
+              192,
+              200,
+              257,
+              328
+            ],
+            "top_shared_businesses": [
+              {
+                "business_id": 96,
+                "reviews_in_block": 60
+              },
+              {
+                "business_id": 53,
+                "reviews_in_block": 55
+              },
+              {
+                "business_id": 93,
+                "reviews_in_block": 53
+              },
+              {
+                "business_id": 123,
+                "reviews_in_block": 53
+              },
+              {
+                "business_id": 64,
+                "reviews_in_block": 52
+              }
+            ],
+            "median_reviews_per_member_account": 4.0,
+            "share_one_review_accounts": 0.0,
+            "same_month_pair_share": 0.04735783507039678,
+            "same_star_pair_share": 0.3046260742366063
+          }
+        },
+        {
+          "rank": 5,
+          "density": 0.4446,
+          "n_reviewers": 1513,
+          "n_targets": 190,
+          "n_reviews_in_block": 4511,
+          "fake_share": 0.05076479716249169,
+          "mostly_fake": false,
+          "evidence": {
+            "sample_reviewer_ids": [
+              0,
+              2,
+              13,
+              37,
+              38,
+              45,
+              48,
+              49,
+              50,
+              58
+            ],
+            "top_shared_businesses": [
+              {
+                "business_id": 22,
+                "reviews_in_block": 90
+              },
+              {
+                "business_id": 96,
+                "reviews_in_block": 88
+              },
+              {
+                "business_id": 54,
+                "reviews_in_block": 86
+              },
+              {
+                "business_id": 131,
+                "reviews_in_block": 79
+              },
+              {
+                "business_id": 104,
+                "reviews_in_block": 75
+              }
+            ],
+            "median_reviews_per_member_account": 3.0,
+            "share_one_review_accounts": 0.02775941837409121,
+            "same_month_pair_share": 0.05004049955733042,
+            "same_star_pair_share": 0.31599073219432255
+          }
+        },
+        {
+          "rank": 6,
+          "density": 0.3413,
+          "n_reviewers": 6,
+          "n_targets": 2,
+          "n_reviews_in_block": 6,
+          "fake_share": 0.0,
+          "mostly_fake": false,
+          "evidence": {
+            "sample_reviewer_ids": [
+              11629,
+              29371,
+              29372,
+              29373,
+              29398,
+              29399
+            ],
+            "top_shared_businesses": [
+              {
+                "business_id": 181,
+                "reviews_in_block": 4
+              },
+              {
+                "business_id": 182,
+                "reviews_in_block": 2
+              }
+            ],
+            "median_reviews_per_member_account": 1.0,
+            "share_one_review_accounts": 0.8333333333333334,
+            "same_month_pair_share": 0.14285714285714285,
+            "same_star_pair_share": 0.8571428571428571
+          }
+        },
+        {
+          "rank": 7,
+          "density": 0.3278,
+          "n_reviewers": 15,
+          "n_targets": 5,
+          "n_reviews_in_block": 15,
+          "fake_share": 0.0,
+          "mostly_fake": false,
+          "evidence": {
+            "sample_reviewer_ids": [
+              5996,
+              6696,
+              19123,
+              19260,
+              29384,
+              29385,
+              29396,
+              29397,
+              29415,
+              29416
+            ],
+            "top_shared_businesses": [
+              {
+                "business_id": 189,
+                "reviews_in_block": 5
+              },
+              {
+                "business_id": 183,
+                "reviews_in_block": 3
+              },
+              {
+                "business_id": 186,
+                "reviews_in_block": 3
+              },
+              {
+                "business_id": 157,
+                "reviews_in_block": 2
+              },
+              {
+                "business_id": 173,
+                "reviews_in_block": 2
+              }
+            ],
+            "median_reviews_per_member_account": 1.0,
+            "share_one_review_accounts": 0.7333333333333333,
+            "same_month_pair_share": 0.2777777777777778,
+            "same_star_pair_share": 0.4444444444444444
+          }
+        },
+        {
+          "rank": 8,
+          "density": 0.3246,
+          "n_reviewers": 1721,
+          "n_targets": 144,
+          "n_reviews_in_block": 3460,
+          "fake_share": 0.0907514450867052,
+          "mostly_fake": false,
+          "evidence": {
+            "sample_reviewer_ids": [
+              1,
+              3,
+              4,
+              5,
+              10,
+              15,
+              26,
+              28,
+              33,
+              46
+            ],
+            "top_shared_businesses": [
+              {
+                "business_id": 30,
+                "reviews_in_block": 57
+              },
+              {
+                "business_id": 115,
+                "reviews_in_block": 57
+              },
+              {
+                "business_id": 120,
+                "reviews_in_block": 56
+              },
+              {
+                "business_id": 156,
+                "reviews_in_block": 54
+              },
+              {
+                "business_id": 114,
+                "reviews_in_block": 52
+              }
+            ],
+            "median_reviews_per_member_account": 2.0,
+            "share_one_review_accounts": 0.04357931435212086,
+            "same_month_pair_share": 0.05004161280611974,
+            "same_star_pair_share": 0.3100950896888779
+          }
+        },
+        {
+          "rank": 9,
+          "density": 0.3049,
+          "n_reviewers": 2236,
+          "n_targets": 78,
+          "n_reviews_in_block": 4431,
+          "fake_share": 0.11464680658993455,
+          "mostly_fake": false,
+          "evidence": {
+            "sample_reviewer_ids": [
+              2026,
+              3646,
+              3679,
+              3714,
+              3728,
+              3738,
+              3742,
+              3751,
+              3777,
+              3796
+            ],
+            "top_shared_businesses": [
+              {
+                "business_id": 39,
+                "reviews_in_block": 120
+              },
+              {
+                "business_id": 64,
+                "reviews_in_block": 111
+              },
+              {
+                "business_id": 54,
+                "reviews_in_block": 107
+              },
+              {
+                "business_id": 49,
+                "reviews_in_block": 105
+              },
+              {
+                "business_id": 105,
+                "reviews_in_block": 103
+              }
+            ],
+            "median_reviews_per_member_account": 2.0,
+            "share_one_review_accounts": 0.019230769230769232,
+            "same_month_pair_share": 0.05008215738524121,
+            "same_star_pair_share": 0.3166290240194962
+          }
+        },
+        {
+          "rank": 10,
+          "density": 0.2787,
+          "n_reviewers": 241,
+          "n_targets": 21,
+          "n_reviews_in_block": 412,
+          "fake_share": 0.1820388349514563,
+          "mostly_fake": false,
+          "evidence": {
+            "sample_reviewer_ids": [
+              51,
+              52,
+              53,
+              54,
+              55,
+              56,
+              57,
+              59,
+              60,
+              66
+            ],
+            "top_shared_businesses": [
+              {
+                "business_id": 96,
+                "reviews_in_block": 51
+              },
+              {
+                "business_id": 22,
+                "reviews_in_block": 46
+              },
+              {
+                "business_id": 49,
+                "reviews_in_block": 43
+              },
+              {
+                "business_id": 53,
+                "reviews_in_block": 33
+              },
+              {
+                "business_id": 54,
+                "reviews_in_block": 29
+              }
+            ],
+            "median_reviews_per_member_account": 2.0,
+            "share_one_review_accounts": 0.2863070539419087,
+            "same_month_pair_share": 0.059414668547249645,
+            "same_star_pair_share": 0.33198166431593795
+          }
+        }
+      ]
+    },
+    {
+      "graph": "Reviewer x burst (business, star, month)",
+      "k": 10,
+      "base_fake_rate": 0.14529747138442792,
+      "n_blocks": 10,
+      "n_mostly_fake": 0,
+      "blocks": [
+        {
+          "rank": 1,
+          "density": 0.915,
+          "n_reviewers": 929,
+          "n_targets": 821,
+          "n_reviews_in_block": 5473,
+          "fake_share": 0.010414763383884524,
+          "mostly_fake": false,
+          "evidence": {
+            "sample_reviewer_ids": [
+              198,
+              222,
+              249,
+              296,
+              516,
+              714,
+              715,
+              758,
+              853,
+              883
+            ],
+            "top_shared_businesses": [
+              {
+                "business_id": 93,
+                "reviews_in_block": 135
+              },
+              {
+                "business_id": 51,
+                "reviews_in_block": 134
+              },
+              {
+                "business_id": 53,
+                "reviews_in_block": 127
+              },
+              {
+                "business_id": 58,
+                "reviews_in_block": 122
+              },
+              {
+                "business_id": 96,
+                "reviews_in_block": 122
+              }
+            ],
+            "median_reviews_per_member_account": 7.0,
+            "share_one_review_accounts": 0.0,
+            "same_month_pair_share": 0.06410442222134384,
+            "same_star_pair_share": 0.4363633169514825
+          }
+        },
+        {
+          "rank": 2,
+          "density": 0.6655,
+          "n_reviewers": 7,
+          "n_targets": 12,
+          "n_reviews_in_block": 26,
+          "fake_share": 0.0,
+          "mostly_fake": false,
+          "evidence": {
+            "sample_reviewer_ids": [
+              63,
+              64,
+              168,
+              880,
+              908,
+              1040,
+              3213
+            ],
+            "top_shared_businesses": [
+              {
+                "business_id": 25,
+                "reviews_in_block": 6
+              },
+              {
+                "business_id": 5,
+                "reviews_in_block": 4
+              },
+              {
+                "business_id": 3,
+                "reviews_in_block": 2
+              },
+              {
+                "business_id": 6,
+                "reviews_in_block": 2
+              },
+              {
+                "business_id": 29,
+                "reviews_in_block": 2
+              }
+            ],
+            "median_reviews_per_member_account": 5.0,
+            "share_one_review_accounts": 0.0,
+            "same_month_pair_share": 0.6206896551724138,
+            "same_star_pair_share": 0.7241379310344828
+          }
+        },
+        {
+          "rank": 3,
+          "density": 0.5846,
+          "n_reviewers": 2752,
+          "n_targets": 2110,
+          "n_reviews_in_block": 9667,
+          "fake_share": 0.03651598220751009,
+          "mostly_fake": false,
+          "evidence": {
+            "sample_reviewer_ids": [
+              28,
+              37,
+              38,
+              48,
+              57,
+              59,
+              63,
+              69,
+              75,
+              81
+            ],
+            "top_shared_businesses": [
+              {
+                "business_id": 96,
+                "reviews_in_block": 241
+              },
+              {
+                "business_id": 22,
+                "reviews_in_block": 206
+              },
+              {
+                "business_id": 131,
+                "reviews_in_block": 187
+              },
+              {
+                "business_id": 39,
+                "reviews_in_block": 187
+              },
+              {
+                "business_id": 56,
+                "reviews_in_block": 187
+              }
+            ],
+            "median_reviews_per_member_account": 3.0,
+            "share_one_review_accounts": 0.0,
+            "same_month_pair_share": 0.05101078078196957,
+            "same_star_pair_share": 0.3249904332106145
+          }
+        },
+        {
+          "rank": 4,
+          "density": 0.3993,
+          "n_reviewers": 1846,
+          "n_targets": 2120,
+          "n_reviews_in_block": 4559,
+          "fake_share": 0.06690063610440886,
+          "mostly_fake": false,
+          "evidence": {
+            "sample_reviewer_ids": [
+              58,
+              59,
+              61,
+              62,
+              63,
+              64,
+              65,
+              68,
+              74,
+              75
+            ],
+            "top_shared_businesses": [
+              {
+                "business_id": 54,
+                "reviews_in_block": 89
+              },
+              {
+                "business_id": 53,
+                "reviews_in_block": 85
+              },
+              {
+                "business_id": 22,
+                "reviews_in_block": 82
+              },
+              {
+                "business_id": 96,
+                "reviews_in_block": 79
+              },
+              {
+                "business_id": 13,
+                "reviews_in_block": 75
+              }
+            ],
+            "median_reviews_per_member_account": 2.0,
+            "share_one_review_accounts": 0.0,
+            "same_month_pair_share": 0.04802630363706892,
+            "same_star_pair_share": 0.29594362450819217
+          }
+        },
+        {
+          "rank": 5,
+          "density": 0.3721,
+          "n_reviewers": 2,
+          "n_targets": 4,
+          "n_reviews_in_block": 4,
+          "fake_share": 0.0,
+          "mostly_fake": false,
+          "evidence": {
+            "sample_reviewer_ids": [
+              13,
+              57
+            ],
+            "top_shared_businesses": [
+              {
+                "business_id": 2,
+                "reviews_in_block": 1
+              },
+              {
+                "business_id": 4,
+                "reviews_in_block": 1
+              },
+              {
+                "business_id": 16,
+                "reviews_in_block": 1
+              },
+              {
+                "business_id": 20,
+                "reviews_in_block": 1
+              }
+            ],
+            "median_reviews_per_member_account": 4.0,
+            "share_one_review_accounts": 0.0,
+            "same_month_pair_share": NaN,
+            "same_star_pair_share": NaN
+          }
+        },
+        {
+          "rank": 6,
+          "density": 0.34,
+          "n_reviewers": 11854,
+          "n_targets": 6290,
+          "n_reviews_in_block": 17569,
+          "fake_share": 0.15202914223917127,
+          "mostly_fake": false,
+          "evidence": {
+            "sample_reviewer_ids": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9
+            ],
+            "top_shared_businesses": [
+              {
+                "business_id": 96,
+                "reviews_in_block": 260
+              },
+              {
+                "business_id": 53,
+                "reviews_in_block": 258
+              },
+              {
+                "business_id": 49,
+                "reviews_in_block": 232
+              },
+              {
+                "business_id": 94,
+                "reviews_in_block": 229
+              },
+              {
+                "business_id": 54,
+                "reviews_in_block": 227
+              }
+            ],
+            "median_reviews_per_member_account": 1.0,
+            "share_one_review_accounts": 0.7335076767335921,
+            "same_month_pair_share": 0.05007200037859354,
+            "same_star_pair_share": 0.2417672806542457
+          }
+        },
+        {
+          "rank": 7,
+          "density": 0.3098,
+          "n_reviewers": 344,
+          "n_targets": 66,
+          "n_reviews_in_block": 344,
+          "fake_share": 0.25,
+          "mostly_fake": false,
+          "evidence": {
+            "sample_reviewer_ids": [
+              554,
+              557,
+              560,
+              570,
+              571,
+              578,
+              580,
+              1441,
+              1455,
+              1486
+            ],
+            "top_shared_businesses": [
+              {
+                "business_id": 100,
+                "reviews_in_block": 20
+              },
+              {
+                "business_id": 141,
+                "reviews_in_block": 18
+              },
+              {
+                "business_id": 54,
+                "reviews_in_block": 18
+              },
+              {
+                "business_id": 152,
+                "reviews_in_block": 16
+              },
+              {
+                "business_id": 119,
+                "reviews_in_block": 15
+              }
+            ],
+            "median_reviews_per_member_account": 1.0,
+            "share_one_review_accounts": 0.9215116279069767,
+            "same_month_pair_share": 0.3235101506221349,
+            "same_star_pair_share": 0.6922069417157826
+          }
+        },
+        {
+          "rank": 8,
+          "density": 0.3068,
+          "n_reviewers": 393,
+          "n_targets": 69,
+          "n_reviews_in_block": 393,
+          "fake_share": 0.28498727735368956,
+          "mostly_fake": false,
+          "evidence": {
+            "sample_reviewer_ids": [
+              766,
+              942,
+              980,
+              1266,
+              1268,
+              1272,
+              1279,
+              1284,
+              1289,
+              1299
+            ],
+            "top_shared_businesses": [
+              {
+                "business_id": 53,
+                "reviews_in_block": 20
+              },
+              {
+                "business_id": 143,
+                "reviews_in_block": 17
+              },
+              {
+                "business_id": 131,
+                "reviews_in_block": 17
+              },
+              {
+                "business_id": 47,
+                "reviews_in_block": 17
+              },
+              {
+                "business_id": 7,
+                "reviews_in_block": 16
+              }
+            ],
+            "median_reviews_per_member_account": 1.0,
+            "share_one_review_accounts": 0.926208651399491,
+            "same_month_pair_share": 0.3468516542155816,
+            "same_star_pair_share": 0.7075773745997865
+          }
+        },
+        {
+          "rank": 9,
+          "density": 0.3018,
+          "n_reviewers": 777,
+          "n_targets": 123,
+          "n_reviews_in_block": 782,
+          "fake_share": 0.2020460358056266,
+          "mostly_fake": false,
+          "evidence": {
+            "sample_reviewer_ids": [
+              189,
+              536,
+              538,
+              543,
+              548,
+              549,
+              552,
+              561,
+              573,
+              576
+            ],
+            "top_shared_businesses": [
+              {
+                "business_id": 70,
+                "reviews_in_block": 41
+              },
+              {
+                "business_id": 25,
+                "reviews_in_block": 36
+              },
+              {
+                "business_id": 107,
+                "reviews_in_block": 26
+              },
+              {
+                "business_id": 123,
+                "reviews_in_block": 23
+              },
+              {
+                "business_id": 39,
+                "reviews_in_block": 21
+              }
+            ],
+            "median_reviews_per_member_account": 1.0,
+            "share_one_review_accounts": 0.9009009009009009,
+            "same_month_pair_share": 0.2315771641538201,
+            "same_star_pair_share": 0.5734372353040826
+          }
+        },
+        {
+          "rank": 10,
+          "density": 0.3004,
+          "n_reviewers": 341,
+          "n_targets": 47,
+          "n_reviews_in_block": 346,
+          "fake_share": 0.18497109826589594,
+          "mostly_fake": false,
+          "evidence": {
+            "sample_reviewer_ids": [
+              1910,
+              3223,
+              3225,
+              3226,
+              3227,
+              3230,
+              3232,
+              3237,
+              3249,
+              3261
+            ],
+            "top_shared_businesses": [
+              {
+                "business_id": 8,
+                "reviews_in_block": 24
+              },
+              {
+                "business_id": 64,
+                "reviews_in_block": 21
+              },
+              {
+                "business_id": 143,
+                "reviews_in_block": 20
+              },
+              {
+                "business_id": 124,
+                "reviews_in_block": 19
+              },
+              {
+                "business_id": 61,
+                "reviews_in_block": 18
+              }
+            ],
+            "median_reviews_per_member_account": 1.0,
+            "share_one_review_accounts": 0.9178885630498533,
+            "same_month_pair_share": 0.32874692874692873,
+            "same_star_pair_share": 0.7714987714987716
+          }
+        }
+      ]
+    }
+  ]
+}

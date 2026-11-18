@@ -1,0 +1,56 @@
+# Review graph ontology for the YelpChi benchmark.
+# Every node and relation type says where it comes from:
+#   given   = present in the public YelpChi .mat file
+#   derived = computed by frgraph.graph from the given relations (no labels used)
+name: yelpchi_review_graph
+version: 1
+node_types:
+  Review:
+    source: given
+    description: One Yelp review of a hotel or restaurant in Chicago. Carries 32 handcrafted features and the Yelp filter label.
+    attributes: [features_32, label]
+  Reviewer:
+    source: derived
+    description: The account that wrote the review. Recovered as connected components of R-U-R, which in this file is an exact union of cliques.
+  Business:
+    source: derived
+    description: The hotel or restaurant reviewed. Recovered as connected components of R-S-R plus R-T-R (both only link reviews of the same business).
+  StarGroup:
+    source: derived
+    description: Reviews of one business with the same star rating. Components of R-S-R (an exact union of cliques). The star value itself is not published, only the grouping.
+  TimeWindow:
+    source: derived
+    description: A burst of reviews of one business linked by posting month. Components of R-T-R. The file has no timestamps, so a window is a chain of same month links, not a calendar month.
+relation_types:
+  R-U-R:
+    source: given
+    between: [Review, Review]
+    meaning: Both reviews were written by the same reviewer.
+  R-T-R:
+    source: given
+    between: [Review, Review]
+    meaning: Both reviews are about the same business and were posted in the same month.
+  R-S-R:
+    source: given
+    between: [Review, Review]
+    meaning: Both reviews are about the same business and have the same star rating.
+  WROTE:
+    source: derived
+    between: [Reviewer, Review]
+    meaning: Reviewer wrote the review.
+  ABOUT:
+    source: derived
+    between: [Review, Business]
+    meaning: The review is about the business.
+  IN_STAR_GROUP:
+    source: derived
+    between: [Review, StarGroup]
+    meaning: The review belongs to this business and star rating group.
+  IN_TIME_WINDOW:
+    source: derived
+    between: [Review, TimeWindow]
+    meaning: The review belongs to this burst of same month reviews.
+  CO_REVIEWED:
+    source: derived
+    between: [Reviewer, Reviewer]
+    meaning: Two reviewers reviewed at least one business in common. Weight is the number of shared businesses.
