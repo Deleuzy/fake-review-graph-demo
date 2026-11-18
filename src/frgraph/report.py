@@ -23,6 +23,29 @@ def find(summary, split, prefix):
     return next(s for s in summary if s["split"] == split and s["feature_set"].startswith(prefix))
 
 
+def gains_table() -> str:
+    """Paired by seed: each set minus set A on the same split and seed."""
+    import csv
+
+    with (RESULTS / "runs.csv").open() as f:
+        rows = list(csv.DictReader(f))
+    by = {(r["split"], r["feature_set"], r["seed"]): r for r in rows}
+    out = [
+        "| Split | Features | Change in recall at 1% FPR | Seeds better than A | Change in PR-AUC | Seeds better than A |",
+        "|---|---|---|---|---|---|",
+    ]
+    for split in ("reviewer", "business"):
+        sets = sorted({r["feature_set"] for r in rows if r["split"] == split and not r["feature_set"].startswith("A:")})
+        for fs in sets:
+            seeds = sorted({r["seed"] for r in rows if r["split"] == split and r["feature_set"] == fs})
+            cells = []
+            for m in ("recall_at_fpr1pct", "pr_auc"):
+                d = [float(by[(split, fs, s)][m]) - float(by[(split, "A: 32 handcrafted features", s)][m]) for s in seeds]
+                cells += [f"{sum(d) / len(d):+.3f}", f"{sum(x > 0 for x in d)} of {len(d)}"]
+            out.append(f"| {split} | {fs} | " + " | ".join(cells) + " |")
+    return "\n".join(out)
+
+
 def sections() -> dict[str, str]:
     summary = json.loads((RESULTS / "summary.json").read_text())
     gs = json.loads((RESULTS / "graph_summary.json").read_text())
@@ -32,6 +55,8 @@ def sections() -> dict[str, str]:
 
     a = find(summary, "reviewer", "A:")
     e = find(summary, "reviewer", "E:")
+    ba = find(summary, "business", "A:")
+    be = find(summary, "business", "E:")
     ra = find(summary, "random", "A:")
     re_ = find(summary, "random", "E:")
     best = max((s for s in summary if s["split"] == "reviewer"), key=lambda s: s["recall_at_fpr1pct_mean"])
@@ -60,7 +85,10 @@ def sections() -> dict[str, str]:
         f"* Best row at 1% false positive rate on the reviewer split: {best['feature_set']} "
         f"(recall {best['recall_at_fpr1pct_mean']:.3f} ± {best['recall_at_fpr1pct_std']:.3f}).\n"
         f"* A random split reports PR-AUC {ra['pr_auc_mean']:.3f} (A) and {re_['pr_auc_mean']:.3f} (E), "
-        f"against {a['pr_auc_mean']:.3f} and {e['pr_auc_mean']:.3f} on the reviewer split."
+        f"against {a['pr_auc_mean']:.3f} and {e['pr_auc_mean']:.3f} on the reviewer split.\n"
+        f"* Split by business (unseen businesses), at 1% false positive rate: recall {ba['recall_at_fpr1pct_mean']:.3f} (A) "
+        f"and {be['recall_at_fpr1pct_mean']:.3f} (E), and the realised test false positive rate was "
+        f"{ba['fpr_at_fpr1pct_mean']:.3f} and {be['fpr_at_fpr1pct_mean']:.3f} against the 0.010 target."
     )
 
     ring_lines = []
@@ -72,7 +100,7 @@ def sections() -> dict[str, str]:
             + "."
         )
     ring_lines.append("\nFull evidence per block is in [results/rings.md](results/rings.md) and results/rings.json.")
-    return {"DATA": data, "HEADLINE": headline, "TABLE": table, "RINGS": "\n".join(ring_lines)}
+    return {"DATA": data, "HEADLINE": headline, "TABLE": table, "GAINS": gains_table(), "RINGS": "\n".join(ring_lines)}
 
 
 def render(text: str) -> str:

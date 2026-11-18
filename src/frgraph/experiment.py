@@ -100,15 +100,37 @@ def fmt(s: dict, m: str) -> str:
 
 
 def markdown_table(summary: list[dict], split: str) -> str:
-    head = "| Features | # | Recall at 1% FPR | Precision at 1% FPR | Recall at 5% FPR | Precision at 5% FPR | PR-AUC |\n"
-    head += "|---|---|---|---|---|---|---|\n"
+    head = (
+        "| Features | # | Recall at 1% FPR | Precision at 1% FPR | Test FPR (target 1%) "
+        "| Recall at 5% FPR | Precision at 5% FPR | Test FPR (target 5%) | PR-AUC |\n"
+    )
+    head += "|---|---|---|---|---|---|---|---|---|\n"
     lines = [
         f"| {s['feature_set']} | {s['n_features']} | {fmt(s, 'recall_at_fpr1pct')} | {fmt(s, 'precision_at_fpr1pct')} "
-        f"| {fmt(s, 'recall_at_fpr5pct')} | {fmt(s, 'precision_at_fpr5pct')} | {fmt(s, 'pr_auc')} |"
+        f"| {fmt(s, 'fpr_at_fpr1pct')} | {fmt(s, 'recall_at_fpr5pct')} | {fmt(s, 'precision_at_fpr5pct')} "
+        f"| {fmt(s, 'fpr_at_fpr5pct')} | {fmt(s, 'pr_auc')} |"
         for s in summary
         if s["split"] == split
     ]
     return head + "\n".join(lines) + "\n"
+
+
+def write_summary(rows: list[dict]) -> None:
+    summary = summarise(rows)
+    (RESULTS / "summary.json").write_text(json.dumps(summary, indent=2) + "\n")
+    md = [f"### Split by {split}\n\n" + markdown_table(summary, split) for split in SPLITS]
+    (RESULTS / "table.md").write_text("\n".join(md))
+
+
+def rows_from_csv(path: Path) -> list[dict]:
+    with path.open() as f:
+        rows = list(csv.DictReader(f))
+    for r in rows:
+        for k, v in r.items():
+            if k not in ("split", "feature_set"):
+                r[k] = float(v)
+        r["seed"], r["n_features"] = int(r["seed"]), int(r["n_features"])
+    return rows
 
 
 def main(seeds: int = 5, path: Path = DEFAULT_PATH) -> None:
@@ -158,12 +180,7 @@ def main(seeds: int = 5, path: Path = DEFAULT_PATH) -> None:
         w = csv.DictWriter(f, fieldnames=list(rows[0]))
         w.writeheader()
         w.writerows(rows)
-    summary = summarise(rows)
-    (RESULTS / "summary.json").write_text(json.dumps(summary, indent=2) + "\n")
-    md = []
-    for split in SPLITS:
-        md.append(f"### Split by {split}\n\n" + markdown_table(summary, split))
-    (RESULTS / "table.md").write_text("\n".join(md))
+    write_summary(rows)
     print(f"done in {time.time() - t0:.0f}s")
 
 
@@ -171,5 +188,9 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--seeds", type=int, default=5)
     ap.add_argument("--data", type=Path, default=DEFAULT_PATH)
+    ap.add_argument("--from-runs", action="store_true", help="rebuild summary.json and table.md from results/runs.csv")
     a = ap.parse_args()
-    main(a.seeds, a.data)
+    if a.from_runs:
+        write_summary(rows_from_csv(RESULTS / "runs.csv"))
+    else:
+        main(a.seeds, a.data)

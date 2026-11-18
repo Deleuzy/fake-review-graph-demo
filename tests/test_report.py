@@ -18,6 +18,12 @@ def fake_results(tmp_path):
     summary = experiment.summarise(rows)
     (tmp_path / "summary.json").write_text(json.dumps(summary))
     (tmp_path / "table.md").write_text(experiment.markdown_table(summary, "reviewer"))
+    with (tmp_path / "runs.csv").open("w", newline="") as f:
+        import csv
+
+        w = csv.DictWriter(f, fieldnames=list(rows[0]))
+        w.writeheader()
+        w.writerows(rows)
     leak = {s: {"rur_edges_train_test": 0, "test_share": 0.2, "test_positive_rate": 0.1} for s in experiment.SPLITS}
     gs = {
         "n_reviews": 10,
@@ -50,7 +56,7 @@ def test_render_fills_markers_and_check_detects_drift(tmp_path, monkeypatch):
     fake_results(tmp_path)
     monkeypatch.setattr(report, "RESULTS", tmp_path)
     readme = tmp_path / "README.md"
-    names = ("HEADLINE", "RINGS", "DATA", "TABLE")
+    names = ("HEADLINE", "RINGS", "DATA", "TABLE", "GAINS")
     readme.write_text("\n".join(f"<!-- BEGIN {n} -->\nold\n<!-- END {n} -->" for n in names))
     monkeypatch.setattr(report, "README", readme)
     with pytest.raises(SystemExit):
@@ -58,6 +64,7 @@ def test_render_fills_markers_and_check_detects_drift(tmp_path, monkeypatch):
     report.main()
     text = readme.read_text()
     assert "old" not in text and "0.100" in text
+    assert "| reviewer | E: A + all graph features | +0.400 | 2 of 2 |" in text
     report.main(check=True)
 
 
