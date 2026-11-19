@@ -25,8 +25,21 @@ def test_derive_entities_recovers_reviewers_and_businesses(synthetic):
     assert same_partition(ent.reviewer, truth["reviewer"])
     assert same_partition(ent.business, truth["business"])
     assert same_partition(ent.star_group, truth["business"] * 10 + truth["star"])
-    assert ent.checks["rur_is_union_of_cliques"]
-    assert ent.checks["rtr_within_one_business"]
+    assert ent.checks["rur_is_union_of_cliques"] and ent.checks["rsr_is_union_of_cliques"]
+    assert not ent.checks["rtr_is_union_of_cliques"]  # sliding window, as in YelpChi
+    assert ent.checks["at_most_5_star_groups_per_business"]
+    assert ent.counts()["BusinessWith2PlusReviews"] <= ent.counts()["Business"]
+
+
+def test_star_group_check_can_fail():
+    # six star groups inside one business must fail the check
+    from tests.conftest import clique_adjacency
+
+    rsr = clique_adjacency(np.arange(12) // 2)
+    rtr = clean_adjacency(sp.csr_matrix(np.ones((12, 12))))
+    rur = clean_adjacency(sp.csr_matrix((12, 12)))
+    ent = derive_entities({"net_rur": rur, "net_rtr": rtr, "net_rsr": rsr})
+    assert not ent.checks["at_most_5_star_groups_per_business"]
 
 
 def test_union_of_cliques_detects_a_path():

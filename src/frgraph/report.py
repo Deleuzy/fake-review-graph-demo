@@ -34,7 +34,7 @@ def gains_table() -> str:
         "| Split | Features | Change in recall at 1% FPR | Seeds better than A | Change in PR-AUC | Seeds better than A |",
         "|---|---|---|---|---|---|",
     ]
-    for split in ("reviewer", "business"):
+    for split in ("reviewer", "business", "business_new_accounts"):
         sets = sorted({r["feature_set"] for r in rows if r["split"] == split and not r["feature_set"].startswith("A:")})
         for fs in sets:
             seeds = sorted({r["seed"] for r in rows if r["split"] == split and r["feature_set"] == fs})
@@ -42,7 +42,8 @@ def gains_table() -> str:
             for m in ("recall_at_fpr1pct", "pr_auc"):
                 d = [float(by[(split, fs, s)][m]) - float(by[(split, "A: 32 handcrafted features", s)][m]) for s in seeds]
                 cells += [f"{sum(d) / len(d):+.3f}", f"{sum(x > 0 for x in d)} of {len(d)}"]
-            out.append(f"| {split} | {fs} | " + " | ".join(cells) + " |")
+            label = split.replace("_", " ")
+            out.append(f"| {label} | {fs} | " + " | ".join(cells) + " |")
     return "\n".join(out)
 
 
@@ -57,6 +58,9 @@ def sections() -> dict[str, str]:
     e = find(summary, "reviewer", "E:")
     ba = find(summary, "business", "A:")
     be = find(summary, "business", "E:")
+    na = find(summary, "business_new_accounts", "A:")
+    ne = find(summary, "business_new_accounts", "E:")
+    worst = max(summary, key=lambda s: s["fpr_at_fpr1pct_max"])
     ra = find(summary, "random", "A:")
     re_ = find(summary, "random", "E:")
     best = max((s for s in summary if s["split"] == "reviewer"), key=lambda s: s["recall_at_fpr1pct_mean"])
@@ -65,17 +69,21 @@ def sections() -> dict[str, str]:
 
     data = (
         f"* {gs['n_reviews']:,} reviews, {pct(gs['positive_rate'])} labelled fake (filtered by Yelp).\n"
-        f"* Derived: {ec['Reviewer']:,} reviewers, {ec['Business']} businesses, {ec['StarGroup']} star groups, "
-        f"{ec['TimeWindow']:,} time windows.\n"
+        f"* Derived: {ec['Reviewer']:,} reviewers, {ec['BusinessWith2PlusReviews']} businesses with two or more reviews "
+        f"plus {gs['single_review_businesses']} reviews with no same business link (each counted as its own business, "
+        f"{ec['Business']} in all), {ec['StarGroup']} star groups, {ec['TimeWindow']:,} time windows.\n"
         f"* Given edges: R-U-R {gs['edges']['net_rur']:,}, R-T-R {gs['edges']['net_rtr']:,}, R-S-R {gs['edges']['net_rsr']:,}.\n"
-        f"* Only {pct(gs['reviewer_label_mixed_share'], 2)} of reviewers have a mix of fake and genuine reviews, "
+        f"* Of the {gs['reviewers_with_2plus_reviews']:,} reviewers with two or more reviews, only "
+        f"{pct(gs['reviewer_label_mixed_share_among_2plus'], 2)} have a mix of fake and genuine reviews, "
         "so the label is almost a property of the account.\n"
         f"* Reviews from accounts with a single review: {pct(ctx['share_reviews_from_one_review_accounts'])} of all reviews, "
         f"{pct(ctx['fake_rate_one_review_accounts'])} labelled fake, against {pct(ctx['fake_rate_multi_review_accounts'])} "
         "for accounts with more than one review.\n"
         f"* Same reviewer links from train to test (seed 0): random split {leak['random']['rur_edges_train_test']:,}, "
         f"business split {leak['business']['rur_edges_train_test']:,}, "
-        f"reviewer split {leak['reviewer']['rur_edges_train_test']:,}."
+        f"reviewer split {leak['reviewer']['rur_edges_train_test']:,}. "
+        f"In the business split, {pct(leak['business']['test_reviews_from_accounts_seen_in_train'])} of test reviews "
+        "come from an account that also has reviews in training."
     )
 
     headline = (
@@ -88,17 +96,28 @@ def sections() -> dict[str, str]:
         f"against {a['pr_auc_mean']:.3f} and {e['pr_auc_mean']:.3f} on the reviewer split.\n"
         f"* Split by business (unseen businesses), at 1% false positive rate: recall {ba['recall_at_fpr1pct_mean']:.3f} (A) "
         f"and {be['recall_at_fpr1pct_mean']:.3f} (E), and the realised test false positive rate was "
-        f"{ba['fpr_at_fpr1pct_mean']:.3f} and {be['fpr_at_fpr1pct_mean']:.3f} against the 0.010 target."
+        f"{ba['fpr_at_fpr1pct_mean']:.3f} and {be['fpr_at_fpr1pct_mean']:.3f} against the 0.010 target. "
+        "Accounts can appear in both train and test in this split.\n"
+        f"* Same business split, scored only on accounts with no review in training: recall at 1% false positive rate "
+        f"{na['recall_at_fpr1pct_mean']:.3f} (A) and {ne['recall_at_fpr1pct_mean']:.3f} (E).\n"
+        f"* Worst single run: realised test false positive rate {worst['fpr_at_fpr1pct_max']:.3f} against the 0.010 target "
+        f"({worst['feature_set']}, {worst['split'].replace('_', ' ')} split)."
     )
 
     ring_lines = []
     for r in rings:
+        big = max(r["blocks"], key=lambda g: g["n_reviewers"])
         ring_lines.append(
             f"* {r['graph']}: {r['n_mostly_fake']} of {r['n_blocks']} blocks are mostly fake "
             f"(base rate {r['base_fake_rate']:.3f}). Fake share per block, in rank order: "
             + ", ".join(f"{g['fake_share']:.2f}" for g in r["blocks"])
-            + "."
+            + f". Largest block: {big['n_reviewers']:,} reviewers "
+            + f"({pct(big['n_reviewers'] / ctx['n_reviewers'])} of all accounts)."
         )
+    ring_lines.append(
+        f"* For blocks made mostly of one review accounts the fair baseline is the fake rate of those accounts, "
+        f"{ctx['fake_rate_one_review_accounts']:.3f}, not the overall {rings[0]['base_fake_rate']:.3f}."
+    )
     ring_lines.append("\nFull evidence per block is in [results/rings.md](results/rings.md) and results/rings.json.")
     return {"DATA": data, "HEADLINE": headline, "TABLE": table, "GAINS": gains_table(), "RINGS": "\n".join(ring_lines)}
 

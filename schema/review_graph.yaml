@@ -14,7 +14,7 @@ node_types:
     description: The account that wrote the review. Recovered as connected components of R-U-R, which in this file is an exact union of cliques.
   Business:
     source: derived
-    description: The hotel or restaurant reviewed. Recovered as connected components of R-S-R plus R-T-R (both only link reviews of the same business).
+    description: The hotel or restaurant reviewed. Recovered as connected components of R-S-R plus R-T-R, relying on the dataset's definition that both only link reviews of the same business. A review with neither link becomes a business of its own.
   StarGroup:
     source: derived
     description: Reviews of one business with the same star rating. Components of R-S-R (an exact union of cliques). The star value itself is not published, only the grouping.

@@ -113,6 +113,7 @@ def main(path: Path = DEFAULT_PATH) -> None:
     ]
     n_rev = np.bincount(ent.reviewer)[ent.reviewer]
     context = {
+        "n_reviewers": int(ent.reviewer.max()) + 1,
         "fake_rate_one_review_accounts": float(data.y[n_rev == 1].mean()),
         "fake_rate_multi_review_accounts": float(data.y[n_rev > 1].mean()),
         "share_reviews_from_one_review_accounts": float((n_rev == 1).mean()),

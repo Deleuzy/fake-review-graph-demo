@@ -47,6 +47,7 @@ class Entities:
             "Review": len(self.reviewer),
             "Reviewer": int(self.reviewer.max()) + 1,
             "Business": int(self.business.max()) + 1,
+            "BusinessWith2PlusReviews": int((np.bincount(self.business) >= 2).sum()),
             "StarGroup": int(self.star_group.max()) + 1,
             "TimeWindow": int(self.time_window.max()) + 1,
         }
@@ -58,15 +59,14 @@ def derive_entities(rel: dict[str, sp.csr_matrix]) -> Entities:
     business = components(rsr + rtr)
     star_group = components(rsr)
     time_window = components(rtr)
-    # Sanity checks on how the relations were built. They are reported, not assumed.
-    r, c = rtr.nonzero()
-    r2, c2 = rsr.nonzero()
+    # Checks on how the relations were built that could fail on other data. They are reported, not assumed.
+    # (That R-T-R and R-S-R stay inside one business is not checked: it holds by construction of `business`.)
+    stars_per_business = np.array([len(np.unique(star_group[business == b])) for b in np.unique(business)])
     checks = {
         "rur_is_union_of_cliques": is_union_of_cliques(rur),
         "rsr_is_union_of_cliques": is_union_of_cliques(rsr),
         "rtr_is_union_of_cliques": is_union_of_cliques(rtr),
-        "rtr_within_one_business": bool(np.all(business[r] == business[c])),
-        "rsr_within_one_business": bool(np.all(business[r2] == business[c2])),
+        "at_most_5_star_groups_per_business": bool(stars_per_business.max() <= 5),
     }
     return Entities(reviewer, business, star_group, time_window, checks)
 

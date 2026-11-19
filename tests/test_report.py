@@ -7,7 +7,7 @@ from frgraph import experiment, report
 
 def fake_results(tmp_path):
     rows = []
-    for split in ("reviewer", "business", "random"):
+    for split in experiment.SPLITS:
         sets = experiment.RANDOM_SPLIT_SETS if split == "random" else tuple(experiment.FEATURE_SETS)
         for seed in range(2):
             for i, fs in enumerate(sets):
@@ -24,22 +24,41 @@ def fake_results(tmp_path):
         w = csv.DictWriter(f, fieldnames=list(rows[0]))
         w.writeheader()
         w.writerows(rows)
-    leak = {s: {"rur_edges_train_test": 0, "test_share": 0.2, "test_positive_rate": 0.1} for s in experiment.SPLITS}
+    leak = {
+        s: {
+            "rur_edges_train_test": 0,
+            "test_share": 0.2,
+            "test_positive_rate": 0.1,
+            "test_reviews_from_accounts_seen_in_train": 0.4,
+        }
+        for s in ("reviewer", "business", "random")
+    }
     gs = {
         "n_reviews": 10,
         "positive_rate": 0.1,
-        "entity_counts": {"Reviewer": 5, "Business": 2, "StarGroup": 3, "TimeWindow": 4},
+        "entity_counts": {"Reviewer": 5, "Business": 2, "BusinessWith2PlusReviews": 1, "StarGroup": 3, "TimeWindow": 4},
         "edges": {"net_rur": 1, "net_rtr": 2, "net_rsr": 3},
-        "reviewer_label_mixed_share": 0.0,
+        "reviewers_with_2plus_reviews": 3,
+        "reviewer_label_mixed_share_among_2plus": 0.0,
+        "single_review_businesses": 1,
         "split_leakage_seed0": leak,
     }
     (tmp_path / "graph_summary.json").write_text(json.dumps(gs))
     ctx = {
+        "n_reviewers": 5,
         "fake_rate_one_review_accounts": 0.2,
         "fake_rate_multi_review_accounts": 0.05,
         "share_reviews_from_one_review_accounts": 0.5,
     }
-    runs = [{"graph": "g", "n_blocks": 1, "n_mostly_fake": 0, "base_fake_rate": 0.1, "blocks": [{"fake_share": 0.0}]}]
+    runs = [
+        {
+            "graph": "g",
+            "n_blocks": 1,
+            "n_mostly_fake": 0,
+            "base_fake_rate": 0.1,
+            "blocks": [{"fake_share": 0.0, "n_reviewers": 2}],
+        }
+    ]
     (tmp_path / "rings.json").write_text(json.dumps({"context": ctx, "runs": runs}))
 
 

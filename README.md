@@ -10,12 +10,15 @@ This is a learning demo on the public YelpChi benchmark. It is not Trustpilot da
 * Split by reviewer, at 1% false positive rate: recall 0.532 with the 32 features (A) and 0.721 with all graph features added (E). PR-AUC 0.823 against 0.909.
 * Best row at 1% false positive rate on the reviewer split: E: A + all graph features (recall 0.721 ± 0.019).
 * A random split reports PR-AUC 0.831 (A) and 0.911 (E), against 0.823 and 0.909 on the reviewer split.
-* Split by business (unseen businesses), at 1% false positive rate: recall 0.371 (A) and 0.450 (E), and the realised test false positive rate was 0.009 and 0.013 against the 0.010 target.
+* Split by business (unseen businesses), at 1% false positive rate: recall 0.371 (A) and 0.450 (E), and the realised test false positive rate was 0.009 and 0.013 against the 0.010 target. Accounts can appear in both train and test in this split.
+* Same business split, scored only on accounts with no review in training: recall at 1% false positive rate 0.325 (A) and 0.377 (E).
+* Worst single run: realised test false positive rate 0.048 against the 0.010 target (F: structural graph features only, business new accounts split).
 <!-- END HEADLINE -->
 
 <!-- BEGIN RINGS -->
-* Reviewer x business: 0 of 10 blocks are mostly fake (base rate 0.145). Fake share per block, in rank order: 0.00, 0.01, 0.01, 0.03, 0.05, 0.00, 0.00, 0.09, 0.11, 0.18.
-* Reviewer x burst (business, star, month): 0 of 10 blocks are mostly fake (base rate 0.145). Fake share per block, in rank order: 0.01, 0.00, 0.04, 0.07, 0.00, 0.15, 0.25, 0.28, 0.20, 0.18.
+* Reviewer x business: 0 of 10 blocks are mostly fake (base rate 0.145). Fake share per block, in rank order: 0.00, 0.01, 0.01, 0.03, 0.05, 0.00, 0.00, 0.09, 0.11, 0.18. Largest block: 2,236 reviewers (7.6% of all accounts).
+* Reviewer x burst (business, star, month): 0 of 10 blocks are mostly fake (base rate 0.145). Fake share per block, in rank order: 0.01, 0.00, 0.04, 0.07, 0.00, 0.15, 0.25, 0.28, 0.20, 0.18. Largest block: 11,854 reviewers (40.3% of all accounts).
+* For blocks made mostly of one review accounts the fair baseline is the fake rate of those accounts, 0.247, not the overall 0.145.
 
 Full evidence per block is in [results/rings.md](results/rings.md) and results/rings.json.
 <!-- END RINGS -->
@@ -34,11 +37,11 @@ YelpChi as released with CARE-GNN (Dou et al., CIKM 2020), originally collected 
 
 <!-- BEGIN DATA -->
 * 45,954 reviews, 14.5% labelled fake (filtered by Yelp).
-* Derived: 29,431 reviewers, 209 businesses, 803 star groups, 1,835 time windows.
+* Derived: 29,431 reviewers, 187 businesses with two or more reviews plus 22 reviews with no same business link (each counted as its own business, 209 in all), 803 star groups, 1,835 time windows.
 * Given edges: R-U-R 49,315, R-T-R 573,616, R-S-R 3,402,743.
-* Only 0.30% of reviewers have a mix of fake and genuine reviews, so the label is almost a property of the account.
+* Of the 7,308 reviewers with two or more reviews, only 1.22% have a mix of fake and genuine reviews, so the label is almost a property of the account.
 * Reviews from accounts with a single review: 48.1% of all reviews, 24.7% labelled fake, against 5.1% for accounts with more than one review.
-* Same reviewer links from train to test (seed 0): random split 11,902, business split 12,053, reviewer split 0.
+* Same reviewer links from train to test (seed 0): random split 11,902, business split 12,053, reviewer split 0. In the business split, 44.2% of test reviews come from an account that also has reviews in training.
 <!-- END DATA -->
 
 ## The review graph as an ontology
@@ -52,12 +55,12 @@ The schema is in [schema/review_graph.yaml](schema/review_graph.yaml). Every nod
 | R-T-R | given | same business, same month |
 | R-S-R | given | same business, same star rating |
 | Reviewer, WROTE | derived | connected components of R-U-R. Checked: R-U-R is an exact union of cliques, so each component is one account |
-| Business, ABOUT | derived | components of R-S-R plus R-T-R. Checked: both relations stay inside one business |
+| Business, ABOUT | derived | components of R-S-R plus R-T-R. This relies on the dataset's definition that both relations link only reviews of the same business; it cannot be checked from the file. A review with no such link becomes a business of its own. Checked: no derived business has more than 5 star groups |
 | StarGroup | derived | components of R-S-R (an exact union of cliques). The star value itself is not in the file |
 | TimeWindow | derived | components of R-T-R. R-T-R is not a union of cliques, so a window is a chain of same month links, not a calendar month |
 | CO_REVIEWED | derived | two reviewers who reviewed at least one business in common, weighted by how many |
 
-`frgraph.graph.build_typed_graph` materialises this as a typed networkx graph and `validate_against_schema` checks every node and edge type against the YAML. The checks on how the relations were built are written to `results/graph_summary.json` each run.
+`frgraph.graph.build_typed_graph` materialises this as a typed networkx graph and `validate_against_schema` checks every node and edge type against the YAML. The checks on how the relations were built are written to `results/graph_summary.json` each run. They are checks that could fail on other data; properties that hold by construction are not reported as checks.
 
 ## Method
 
@@ -74,17 +77,17 @@ The schema is in [schema/review_graph.yaml](schema/review_graph.yaml). Every nod
 | E | A plus B, C and D |
 | F | the 13 structural graph features alone, no handcrafted features |
 
-All graph features are label free, so they are computed once on the whole graph. That matches production, where the graph around a new review exists before anyone labels it.
+All graph features are label free and computed once on the whole graph, including validation and test reviews and reviews an account wrote later. A live system would only see the graph up to the time of the review being scored, so these numbers are an upper bound for that setting. The 32 handcrafted features have the same property, since several of them are account level aggregates over the whole crawl. Without timestamps this cannot be avoided here.
 
-**Splits.** 60% train, 20% validation, 20% test, five seeds, with whole groups kept together:
+**Splits.** 60% train, 20% validation, 20% test, five seeds, with whole groups kept together. The seed changes the split; the model itself is deterministic for a given training set (no early stopping and no subsampling), so the spread shown is the variation across splits:
 
 * **by reviewer** (main result): every review of an account is in one part. YelpChi labels are almost constant per account, so this is the split that stops the model from recognising an account it has already seen.
-* **by business**: every review of a business is in one part. This is the harder "new business" case. It does not keep accounts together.
+* **by business**: every review of a business is in one part. This is the harder "new business" case. It does not keep accounts together, so the same models are also scored only on validation and test reviews whose account has no review in training.
 * **random**: shown only to measure how much a careless split overstates results.
 
 The file has no timestamps, so a split by time is not possible here.
 
-**Fixed false positive rate.** For each run the threshold is set on the validation set so that at most 1% (or 5%) of genuine validation reviews score above it. That threshold is then applied unchanged to the test set. The table reports recall and precision on the test set, and `results/runs.csv` also has the realised test false positive rate for every run. PR-AUC is reported as a threshold free summary.
+**Fixed false positive rate.** For each run the threshold is set on the validation set so that at most 1% (or 5%) of genuine validation reviews score above it. That threshold is then applied unchanged to the test set. The table reports recall and precision on the test set, and `results/runs.csv` also has the realised test false positive rate for every run. PR-AUC (computed as average precision) is reported as a threshold free summary. The table also gives the worst single run's realised false positive rate, because for a trust team the tail matters more than the mean.
 
 ## Results
 
@@ -93,32 +96,43 @@ Mean ± standard deviation over five seeds. Written by `python -m frgraph.experi
 <!-- BEGIN TABLE -->
 ### Split by reviewer
 
-| Features | # | Recall at 1% FPR | Precision at 1% FPR | Test FPR (target 1%) | Recall at 5% FPR | Precision at 5% FPR | Test FPR (target 5%) | PR-AUC |
+| Features | # | Recall at 1% FPR | Precision at 1% FPR | Test FPR (target 1%) | Recall at 5% FPR | Precision at 5% FPR | Test FPR (target 5%) | PR-AUC (average precision) |
 |---|---|---|---|---|---|---|---|---|
-| A: 32 handcrafted features | 32 | 0.532 ± 0.024 | 0.901 ± 0.011 | 0.010 ± 0.001 | 0.766 ± 0.020 | 0.715 ± 0.018 | 0.052 ± 0.006 | 0.823 ± 0.012 |
-| B: A + structural graph features | 45 | 0.632 ± 0.035 | 0.918 ± 0.007 | 0.010 ± 0.002 | 0.843 ± 0.015 | 0.733 ± 0.010 | 0.053 ± 0.004 | 0.875 ± 0.005 |
-| C: A + neighbour aggregates | 224 | 0.710 ± 0.021 | 0.917 ± 0.006 | 0.011 ± 0.001 | 0.871 ± 0.007 | 0.746 ± 0.009 | 0.051 ± 0.003 | 0.904 ± 0.004 |
-| D: A + spectral embedding | 48 | 0.618 ± 0.009 | 0.905 ± 0.012 | 0.011 ± 0.002 | 0.823 ± 0.013 | 0.724 ± 0.014 | 0.054 ± 0.003 | 0.866 ± 0.009 |
-| E: A + all graph features | 253 | 0.721 ± 0.019 | 0.918 ± 0.010 | 0.011 ± 0.002 | 0.882 ± 0.010 | 0.747 ± 0.008 | 0.051 ± 0.003 | 0.909 ± 0.004 |
-| F: structural graph features only | 13 | 0.081 ± 0.007 | 0.560 ± 0.029 | 0.011 ± 0.001 | 0.200 ± 0.020 | 0.402 ± 0.021 | 0.051 ± 0.004 | 0.351 ± 0.014 |
+| A: 32 handcrafted features | 32 | 0.532 ± 0.024 | 0.901 ± 0.011 | 0.010 ± 0.001 (max 0.012) | 0.766 ± 0.020 | 0.715 ± 0.018 | 0.052 ± 0.006 (max 0.059) | 0.823 ± 0.012 |
+| B: A + structural graph features | 45 | 0.632 ± 0.035 | 0.918 ± 0.007 | 0.010 ± 0.002 (max 0.012) | 0.843 ± 0.015 | 0.733 ± 0.010 | 0.053 ± 0.004 (max 0.057) | 0.875 ± 0.005 |
+| C: A + neighbour aggregates | 224 | 0.710 ± 0.021 | 0.917 ± 0.006 | 0.011 ± 0.001 (max 0.012) | 0.871 ± 0.007 | 0.746 ± 0.009 | 0.051 ± 0.003 (max 0.054) | 0.904 ± 0.004 |
+| D: A + spectral embedding | 48 | 0.618 ± 0.009 | 0.905 ± 0.012 | 0.011 ± 0.002 (max 0.014) | 0.823 ± 0.013 | 0.724 ± 0.014 | 0.054 ± 0.003 (max 0.057) | 0.866 ± 0.009 |
+| E: A + all graph features | 253 | 0.721 ± 0.019 | 0.918 ± 0.010 | 0.011 ± 0.002 (max 0.012) | 0.882 ± 0.010 | 0.747 ± 0.008 | 0.051 ± 0.003 (max 0.055) | 0.909 ± 0.004 |
+| F: structural graph features only | 13 | 0.081 ± 0.007 | 0.560 ± 0.029 | 0.011 ± 0.001 (max 0.011) | 0.200 ± 0.020 | 0.402 ± 0.021 | 0.051 ± 0.004 (max 0.057) | 0.351 ± 0.014 |
 
 ### Split by business
 
-| Features | # | Recall at 1% FPR | Precision at 1% FPR | Test FPR (target 1%) | Recall at 5% FPR | Precision at 5% FPR | Test FPR (target 5%) | PR-AUC |
+| Features | # | Recall at 1% FPR | Precision at 1% FPR | Test FPR (target 1%) | Recall at 5% FPR | Precision at 5% FPR | Test FPR (target 5%) | PR-AUC (average precision) |
 |---|---|---|---|---|---|---|---|---|
-| A: 32 handcrafted features | 32 | 0.371 ± 0.084 | 0.868 ± 0.034 | 0.009 ± 0.003 | 0.651 ± 0.068 | 0.670 ± 0.045 | 0.053 ± 0.011 | 0.723 ± 0.049 |
-| B: A + structural graph features | 45 | 0.334 ± 0.093 | 0.839 ± 0.068 | 0.010 ± 0.003 | 0.637 ± 0.068 | 0.695 ± 0.042 | 0.046 ± 0.004 | 0.724 ± 0.067 |
-| C: A + neighbour aggregates | 224 | 0.477 ± 0.079 | 0.859 ± 0.090 | 0.013 ± 0.009 | 0.769 ± 0.047 | 0.707 ± 0.076 | 0.054 ± 0.019 | 0.791 ± 0.088 |
-| D: A + spectral embedding | 48 | 0.333 ± 0.073 | 0.860 ± 0.059 | 0.010 ± 0.006 | 0.591 ± 0.070 | 0.674 ± 0.047 | 0.048 ± 0.015 | 0.697 ± 0.030 |
-| E: A + all graph features | 253 | 0.450 ± 0.092 | 0.854 ± 0.084 | 0.013 ± 0.007 | 0.751 ± 0.066 | 0.707 ± 0.065 | 0.053 ± 0.016 | 0.793 ± 0.068 |
-| F: structural graph features only | 13 | 0.032 ± 0.024 | 0.295 ± 0.058 | 0.014 ± 0.011 | 0.118 ± 0.034 | 0.293 ± 0.034 | 0.048 ± 0.017 | 0.263 ± 0.018 |
+| A: 32 handcrafted features | 32 | 0.371 ± 0.084 | 0.868 ± 0.034 | 0.009 ± 0.003 (max 0.013) | 0.651 ± 0.068 | 0.670 ± 0.045 | 0.053 ± 0.011 (max 0.061) | 0.723 ± 0.049 |
+| B: A + structural graph features | 45 | 0.334 ± 0.093 | 0.839 ± 0.068 | 0.010 ± 0.003 (max 0.014) | 0.637 ± 0.068 | 0.695 ± 0.042 | 0.046 ± 0.004 (max 0.052) | 0.724 ± 0.067 |
+| C: A + neighbour aggregates | 224 | 0.477 ± 0.079 | 0.859 ± 0.090 | 0.013 ± 0.009 (max 0.028) | 0.769 ± 0.047 | 0.707 ± 0.076 | 0.054 ± 0.019 (max 0.078) | 0.791 ± 0.088 |
+| D: A + spectral embedding | 48 | 0.333 ± 0.073 | 0.860 ± 0.059 | 0.010 ± 0.006 (max 0.018) | 0.591 ± 0.070 | 0.674 ± 0.047 | 0.048 ± 0.015 (max 0.065) | 0.697 ± 0.030 |
+| E: A + all graph features | 253 | 0.450 ± 0.092 | 0.854 ± 0.084 | 0.013 ± 0.007 (max 0.024) | 0.751 ± 0.066 | 0.707 ± 0.065 | 0.053 ± 0.016 (max 0.071) | 0.793 ± 0.068 |
+| F: structural graph features only | 13 | 0.032 ± 0.024 | 0.295 ± 0.058 | 0.014 ± 0.011 (max 0.028) | 0.118 ± 0.034 | 0.293 ± 0.034 | 0.048 ± 0.017 (max 0.070) | 0.263 ± 0.018 |
 
-### Split by random
+### Split by business, scored only on accounts with no review in training
 
-| Features | # | Recall at 1% FPR | Precision at 1% FPR | Test FPR (target 1%) | Recall at 5% FPR | Precision at 5% FPR | Test FPR (target 5%) | PR-AUC |
+| Features | # | Recall at 1% FPR | Precision at 1% FPR | Test FPR (target 1%) | Recall at 5% FPR | Precision at 5% FPR | Test FPR (target 5%) | PR-AUC (average precision) |
 |---|---|---|---|---|---|---|---|---|
-| A: 32 handcrafted features | 32 | 0.533 ± 0.018 | 0.899 ± 0.010 | 0.010 ± 0.001 | 0.767 ± 0.022 | 0.731 ± 0.011 | 0.049 ± 0.003 | 0.831 ± 0.013 |
-| E: A + all graph features | 253 | 0.723 ± 0.009 | 0.924 ± 0.005 | 0.010 ± 0.001 | 0.879 ± 0.007 | 0.755 ± 0.010 | 0.050 ± 0.002 | 0.911 ± 0.002 |
+| A: 32 handcrafted features | 32 | 0.325 ± 0.117 | 0.898 ± 0.055 | 0.010 ± 0.006 (max 0.017) | 0.627 ± 0.086 | 0.760 ± 0.072 | 0.056 ± 0.021 (max 0.076) | 0.774 ± 0.055 |
+| B: A + structural graph features | 45 | 0.260 ± 0.075 | 0.886 ± 0.072 | 0.009 ± 0.004 (max 0.015) | 0.545 ± 0.102 | 0.760 ± 0.062 | 0.047 ± 0.013 (max 0.067) | 0.742 ± 0.073 |
+| C: A + neighbour aggregates | 224 | 0.388 ± 0.093 | 0.870 ± 0.120 | 0.017 ± 0.015 (max 0.043) | 0.667 ± 0.089 | 0.776 ± 0.079 | 0.055 ± 0.026 (max 0.092) | 0.792 ± 0.100 |
+| D: A + spectral embedding | 48 | 0.295 ± 0.106 | 0.897 ± 0.056 | 0.011 ± 0.010 (max 0.026) | 0.570 ± 0.094 | 0.768 ± 0.056 | 0.050 ± 0.025 (max 0.086) | 0.758 ± 0.023 |
+| E: A + all graph features | 253 | 0.377 ± 0.101 | 0.871 ± 0.113 | 0.015 ± 0.012 (max 0.034) | 0.650 ± 0.094 | 0.762 ± 0.072 | 0.058 ± 0.022 (max 0.086) | 0.792 ± 0.080 |
+| F: structural graph features only | 13 | 0.025 ± 0.030 | 0.261 ± 0.062 | 0.019 ± 0.019 (max 0.048) | 0.085 ± 0.033 | 0.293 ± 0.032 | 0.058 ± 0.027 (max 0.090) | 0.270 ± 0.019 |
+
+### Random split (leakage check only)
+
+| Features | # | Recall at 1% FPR | Precision at 1% FPR | Test FPR (target 1%) | Recall at 5% FPR | Precision at 5% FPR | Test FPR (target 5%) | PR-AUC (average precision) |
+|---|---|---|---|---|---|---|---|---|
+| A: 32 handcrafted features | 32 | 0.533 ± 0.018 | 0.899 ± 0.010 | 0.010 ± 0.001 (max 0.011) | 0.767 ± 0.022 | 0.731 ± 0.011 | 0.049 ± 0.003 (max 0.052) | 0.831 ± 0.013 |
+| E: A + all graph features | 253 | 0.723 ± 0.009 | 0.924 ± 0.005 | 0.010 ± 0.001 (max 0.011) | 0.879 ± 0.007 | 0.755 ± 0.010 | 0.050 ± 0.002 (max 0.052) | 0.911 ± 0.002 |
 <!-- END TABLE -->
 
 ## Ring detection
@@ -149,13 +163,19 @@ Change against set A on the same split and seed (paired), from `results/runs.csv
 | business | D: A + spectral embedding | -0.038 | 1 of 5 | -0.026 | 1 of 5 |
 | business | E: A + all graph features | +0.079 | 5 of 5 | +0.069 | 5 of 5 |
 | business | F: structural graph features only | -0.339 | 0 of 5 | -0.461 | 0 of 5 |
+| business new accounts | B: A + structural graph features | -0.065 | 1 of 5 | -0.032 | 1 of 5 |
+| business new accounts | C: A + neighbour aggregates | +0.064 | 5 of 5 | +0.018 | 4 of 5 |
+| business new accounts | D: A + spectral embedding | -0.030 | 1 of 5 | -0.016 | 1 of 5 |
+| business new accounts | E: A + all graph features | +0.053 | 5 of 5 | +0.018 | 4 of 5 |
+| business new accounts | F: structural graph features only | -0.299 | 0 of 5 | -0.505 | 0 of 5 |
 <!-- END GAINS -->
 
 * **Neighbour aggregates helped most, and they held up on unseen businesses.** Describing a review by what the reviews around it look like (same account, same business and month, same business and star rating) was the only feature family that improved recall at 1% false positive rate in every seed on both grouped splits. The context of a review carries signal that its own 32 features miss.
 * **Structural features and the spectral embedding helped on the reviewer split but not on the business split.** On unseen businesses they were flat or slightly worse in most seeds. A likely reason is that much of what they encode is which business a review belongs to (R-S-R makes up most of the edges), and that does not transfer to a business the model has never seen. I have not tested that explanation.
+* **On new accounts at new businesses everything gets harder.** Scoring the business split only on accounts with no review in training lowers recall for every row, widens the spread across splits, and the threshold set on validation data no longer holds its false positive rate well (see the worst run in the table). Neighbour aggregates still improved recall at 1% false positive rate in every seed here, by less. This is the closest this benchmark gets to a brand new reviewer, which is the case that matters most before a review goes live.
 * **Graph structure alone is weak** (set F). On this data the graph is context for the review features, not a replacement for them.
 * **The random split overstated results much less than I expected.** I expected a large gap because labels are nearly constant per account. It did not appear, probably because the 32 features already include account level behaviour, so seeing the account's other reviews in training adds little. Grouped splits are still the right default: the business split is where performance really drops, the spread across seeds is several times larger, and a threshold set on validation data does not hold its false positive rate as tightly on new businesses.
-* **Dense block detection did not find fake rings here.** In both runs the densest blocks were mostly genuine prolific reviewers, and no block was mostly fake. YelpChi's filtered accounts are mostly one review accounts, so they do not form dense co-review structure. Two lessons: a density score on its own would flag honest power users first, which is exactly the false positive Trustpilot cannot afford; and a ring detector can only be evaluated against labels that describe collusion, which Yelp's filter labels do not.
+* **Dense block detection did not find fake rings here.** No block in either run was mostly fake. In both runs the top ranked blocks were genuine prolific reviewers, with fake shares far below the base rate. Lower in the burst run, the blocks consist mostly of one review accounts and have fake shares above the overall base rate, but close to the fake rate of one review accounts in general (some a little above it, some below), so they show little or no lift; and the largest of them covers a large share of all accounts, which is a population, not a ring. YelpChi's filtered accounts are mostly one review accounts, so they do not form dense co-review structure. Two lessons: a density score on its own would flag honest power users first, which is exactly the false positive Trustpilot cannot afford; and a ring detector can only be evaluated against labels that describe collusion, which Yelp's filter labels do not.
 
 ## Honest limits
 
@@ -163,9 +183,10 @@ Change against set A on the same split and seed (paired), from `results/runs.csv
 * **The labels are Yelp's filter, not ground truth.** A model that agrees with the filter learns the filter, including its mistakes. In this data, accounts with a single review are labelled fake far more often than others (numbers under Data), which shapes everything here.
 * **No text and no timestamps** in the public graph version, so no language model features, no split by time, and the time window node is only a chain of same month links.
 * **One model family, fixed settings.** No hyperparameter search, so the gaps between rows are between feature sets under one reasonable setting, not between best possible models.
-* **No GNN row.** The plan allowed one if time permitted; I left it out rather than add an untuned one.
-* **Graph features are computed transductively** on the whole graph, label free. That is realistic for a live system, but it means test reviews contribute to, for example, PageRank.
-* **Five seeds** give a spread, not a confidence interval.
+* **No GNN row.** I left a GNN out on purpose rather than add an untuned one.
+* **Graph features are computed transductively** on the whole graph, label free: test reviews contribute to PageRank and the spectral embedding, and account and business counts include reviews written after the one being scored. A live system sees less, so treat the gains as an upper bound for that setting.
+* **Five seeds** give a spread across splits, not a confidence interval.
+* **The business split shares accounts between train and test.** Its main rows mix a new business effect with account memory; the rows scored only on unseen accounts separate the two.
 
 ## If I were doing this at Trustpilot
 

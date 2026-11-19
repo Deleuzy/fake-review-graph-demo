@@ -1,5 +1,6 @@
 {
   "context": {
+    "n_reviewers": 29431,
     "fake_rate_one_review_accounts": 0.2468019707996203,
     "fake_rate_multi_review_accounts": 0.05106793672107759,
     "share_reviews_from_one_review_accounts": 0.48141619880750314
